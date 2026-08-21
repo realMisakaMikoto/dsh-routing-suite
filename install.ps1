@@ -6,8 +6,26 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Write-Host '=== [1/3] 装配注入器 ===' -ForegroundColor Cyan
 $injector = Join-Path $root 'injector'
 if (-not (Test-Path (Join-Path $injector 'lib\index.js'))) {
-  Write-Host 'injector/lib 缺失——git 装配会在安装时自动构建（prepare 钩子）；或从 Release 下载 tgz' -ForegroundColor Yellow
-} else {
+  # 全新 clone 没有 lib/（构建产物不入库）。github: 装配（方式 B）会在安装时由
+  # prepare 钩子自动构建；本地目录装配若构建不可行，请改用 Release tgz（方式 A）。
+  Write-Host 'injector/lib 缺失——尝试 npm install 触发 prepare 钩子构建（若私有 peer 拉取失败会自动跳过）...' -ForegroundColor Yellow
+  Push-Location $injector
+  try {
+    & npm install --no-audit --no-fund 2>&1 | Out-Host
+  } catch {
+    Write-Host 'npm install 失败（可忽略）' -ForegroundColor DarkGray
+  } finally {
+    Pop-Location
+  }
+  if (-not (Test-Path (Join-Path $injector 'lib\index.js'))) {
+    Write-Host '自动构建不可行——注入器请改用以下方式装配：' -ForegroundColor Yellow
+    Write-Host '  A. Release tgz（预构建，推荐）：https://github.com/yjh051108/dsh-super-injector/releases' -ForegroundColor Yellow
+    Write-Host '  B. github: 装配（prepare 钩子自动构建）：dsh plugin --profile web add github:yjh051108/dsh-super-injector' -ForegroundColor Yellow
+  } else {
+    Write-Host 'injector/lib 构建完成' -ForegroundColor Green
+  }
+}
+if (Test-Path (Join-Path $injector 'lib\index.js')) {
   # dsh CLI 可能不在 PATH（用 npx @deepseek-ai/dsh web 启动的场景）；优先 dsh，fallback 到 npx
   $dshCmd = Get-Command dsh -ErrorAction SilentlyContinue
   if ($dshCmd) {
