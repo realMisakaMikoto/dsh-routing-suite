@@ -2,19 +2,18 @@
 
 One repository for the full stack: the **runtime surgery table** (dsh-super-injector,
 restart-free plugin management) plus the **reasoning-mode routing presets**
-(dsh-router-standard: task-aware reasoning-mode routing) and the **mode-boost
-plugin** (measured performance lifts on top of official presets).
+(dsh-router-standard: task-aware reasoning-mode routing).
 
 [中文](README.md) | English
 
 ## Install chain (three steps)
 
 ```powershell
-# 1. Clone the suite (includes three submodules)
+# 1. Clone the suite (includes two submodules)
 git clone --recurse-submodules https://github.com/yjh051108/dsh-routing-suite.git
 cd dsh-routing-suite
 
-# 2. One-shot install (injector assembly + preset copy + restart prompt)
+# 2. One-shot install (injector assembly + preset copy + layout self-check + restart prompt)
 .\install.ps1
 ```
 
@@ -23,23 +22,28 @@ Or manually:
 ```powershell
 # Step 1: assemble the injector (official assembly; bundles take over after restart)
 dsh plugin --profile web add .\injector
+# If dsh is not on PATH (npx @deepseek-ai/dsh web): npx '@deepseek-ai/dsh' plugin --profile web add .\injector
 
-# Step 2: install the router presets (one or both)
+# Step 2: install the router presets (one or both; DSH scans one level only,
+# so each preset directory must sit FLAT under .agent-presets)
 $target = Join-Path $env:USERPROFILE '.dsh\.agent-presets\router-standard'
-Copy-Item -Recurse .\preset\preset\router-standard $target
+Copy-Item -Recurse .\preset\router-standard $target
 
 $target = Join-Path $env:USERPROFILE '.dsh\.agent-presets\router-spec'
-Copy-Item -Recurse .\preset\preset\router-spec $target
+Copy-Item -Recurse .\preset\router-spec $target
 
 # Step 3: restart DSH → pick Router Standard / Router Spec in a new session
 ```
+
+> Do NOT copy the `preset` directory as a whole — the extra nesting hides the
+> presets from DSH discovery.
 
 ## Components
 
 | Path | Repo | Version | Role |
 |---|---|---|---|
-| `injector/` | [dsh-super-injector](https://github.com/yjh051108/dsh-super-injector) | [v0.3.3](https://github.com/yjh051108/dsh-super-injector/releases/tag/v0.3.3) | Runtime injector: dev_* tool family (inject / hot-reload / staging-promote / uninject / route self-heal) |
-| `preset/` | [dsh-router-standard](https://github.com/yjh051108/dsh-router-standard) | [v0.3.0](https://github.com/yjh051108/dsh-router-standard/releases/tag/v0.3.0) | Reasoning-mode routing presets: router-standard (RL-interface restoration) / router-spec (deep-think-first) / router-pro (V4 Pro measured optimum) |
+| `injector/` | [dsh-super-injector](https://github.com/yjh051108/dsh-super-injector) | [v0.3.3](https://github.com/yjh051108/dsh-super-injector/releases/tag/v0.3.3) | Runtime injector: dev_* tool family (inject / hot-reload / staging-promote / uninject / route self-heal); git installs build automatically (prepare hook) |
+| `preset/` | [dsh-router-standard](https://github.com/yjh051108/dsh-router-standard) | [v0.3.0](https://github.com/yjh051108/dsh-router-standard/releases/tag/v0.3.0) | Reasoning-mode routing presets: router-standard (classified persona + full sections) / router-spec (deep-think-first). router-pro is planned but NOT part of v0.3.0 |
 
 > Versions follow each component repo's git tag (links go to the matching Release).
 
@@ -55,19 +59,17 @@ The two components evolve independently (submodules point at each repo's
 - **plan-mode preserved**: only the persona section is replaced; plan boundaries never lose focus
 - **AI self-optimization tools**: `dev_router_status` / `dev_router_mode` / `dev_mode_subagent`
 
-## Router Pro (v0.3.0) highlights
+## v0.3.0 changes (real-assembly-chain fixes)
 
-- V4 Pro measured-optimal routing: maintenance → RL interface (anchored-standard 98/99), build → doer (Mario 10/10), no-evidence → weak (router-v2 few-shot, discrimination +2.6 n=10)
-- **Decision-closure loop** (all-branch near-field guidance): black-hole reasoning 58K→27K (2.1× curbed) with 100% action — **no budget cap**
-- Competition band [0.03, 0.455] never touched (E2 matrix: 9/12 anti-routing, peak −10.6)
-- Model split: Pro = router-v2 few-shot + decision closure; Flash = w7 + commit guidance
+- **First-turn routing actually works** ([#13](https://github.com/yjh051108/dsh-routing-suite/issues/13)): the first real user message is captured via `agent/inbox/claimed` BEFORE assembly, so the first request is classified (previously every session's first request was unconditionally weak)
+- **Near-field guidance moved to `agent/pre-step`** ([#34](https://github.com/yjh051108/dsh-routing-suite/issues/34)/[#36](https://github.com/yjh051108/dsh-routing-suite/issues/36)/[#55](https://github.com/yjh051108/dsh-routing-suite/issues/55)): the guide now rides the SAME request as the user message — reachable on the real chain, and it no longer manufactures a second API call per user message (the 2× cost spike)
+- **Missing imports** ([#11](https://github.com/yjh051108/dsh-routing-suite/issues/11)), preset.yml YAML quoting ([#53](https://github.com/yjh051108/dsh-routing-suite/issues/53)), full sections after promotion ([#44](https://github.com/yjh051108/dsh-routing-suite/issues/44)), install script & docs fixes ([#35](https://github.com/yjh051108/dsh-routing-suite/issues/35)/[#42](https://github.com/yjh051108/dsh-routing-suite/issues/42)/[#41](https://github.com/yjh051108/dsh-routing-suite/issues/41)), injector git-install auto-build ([#40](https://github.com/yjh051108/dsh-routing-suite/issues/40))
 
 ## Docs
 
 - Injector guide (10 rules): `injector/README.md`
-- Routing preset paper & experiments: `preset/docs/paper.md` + `preset/docs/experiments.md` (P1–P23), `preset/docs/paper-pro.md` (V4 Pro)
+- Routing preset paper & experiments: `preset/docs/paper.md` + `preset/docs/experiments.md` (P1–P23)
 
 ## License
 
 MIT. Credits: xiaobright/modeltest (V4.1b evaluation), xiaobright/dsh-anchored-standard (anchoring mechanism).
-

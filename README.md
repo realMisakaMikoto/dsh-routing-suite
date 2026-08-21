@@ -12,7 +12,7 @@
 git clone --recurse-submodules https://github.com/yjh051108/dsh-routing-suite.git
 cd dsh-routing-suite
 
-# 2. 一键安装（注入器装配 + 预设复制 + 提示重启）
+# 2. 一键安装（注入器装配 + 预设复制 + 布局自检 + 提示重启）
 .\install.ps1
 ```
 
@@ -21,20 +21,26 @@ cd dsh-routing-suite
 ```powershell
 # 步骤 1：装配注入器（官方装配，重启后由 bundles 接管）
 dsh plugin --profile web add .\injector
+# dsh 不在 PATH 时：npx '@deepseek-ai/dsh' plugin --profile web add .\injector
 
-# 步骤 2：安装 router-standard 预设
+# 步骤 2：安装 router 预设（每个预设目录平铺复制到 .agent-presets 下，DSH 只扫一级子目录）
 $target = Join-Path $env:USERPROFILE '.dsh\.agent-presets\router-standard'
-Copy-Item -Recurse .\preset\preset $target
+Copy-Item -Recurse .\preset\router-standard $target
 
-# 步骤 3：重启 DSH → 新会话选择 Router Standard (experimental)
+$target = Join-Path $env:USERPROFILE '.dsh\.agent-presets\router-spec'
+Copy-Item -Recurse .\preset\router-spec $target
+
+# 步骤 3：重启 DSH → 新会话选择 Router Standard / Router Spec (experimental)
 ```
+
+> 注意：不要复制 `preset` 整目录（会多套一层，DSH 发现不了预设）。
 
 ## 组件
 
 | 路径 | 仓库 | 版本 | 作用 |
 |---|---|---|---|
-| `injector/` | [dsh-super-injector](https://github.com/yjh051108/dsh-super-injector) | [v0.3.3](https://github.com/yjh051108/dsh-super-injector/releases/tag/v0.3.3) | 运行时注入器：dev_* 工具全家桶（注入/热重载/侧挂转正/卸载/路由自愈） |
-| `preset/` | [dsh-router-standard](https://github.com/yjh051108/dsh-router-standard) | [v0.3.0](https://github.com/yjh051108/dsh-router-standard/releases/tag/v0.3.0) | 思维模式路由预设：router-standard（RL 接口还原）/ router-spec（深度思考优先）/ router-pro（Pro 测量最优） |
+| `injector/` | [dsh-super-injector](https://github.com/yjh051108/dsh-super-injector) | [v0.3.3](https://github.com/yjh051108/dsh-super-injector/releases/tag/v0.3.3) | 运行时注入器：dev_* 工具全家桶（注入/热重载/侧挂转正/卸载/路由自愈）；git 装配自动构建（prepare 钩子） |
+| `preset/` | [dsh-router-standard](https://github.com/yjh051108/dsh-router-standard) | [v0.3.0](https://github.com/yjh051108/dsh-router-standard/releases/tag/v0.3.0) | 思维模式路由预设：router-standard（分类 persona + 完整 sections）/ router-spec（深度思考优先）。router-pro 为规划中（planned），未随 v0.3.0 发布 |
 
 > 版本号以各组件仓库的 git tag 为准（列内链接直达对应 Release）。
 
@@ -49,6 +55,12 @@ Copy-Item -Recurse .\preset\preset $target
 - **plan-mode 保留**：只替换 persona section，plan 边界不失忆
 - **AI 自优化工具**：`dev_router_status` / `dev_router_mode` / `dev_mode_subagent`
 
+## v0.3.0 变更（真实装配链路修复）
+
+- **首轮路由真实生效**（[#13](https://github.com/yjh051108/dsh-routing-suite/issues/13)）：经 `agent/inbox/claimed` 在装配前捕获首条真实用户消息，首个请求即按任务分类（此前所有会话首轮无条件 weak）
+- **近距离引导改走 `agent/pre-step`**（[#34](https://github.com/yjh051108/dsh-routing-suite/issues/34)/[#36](https://github.com/yjh051108/dsh-routing-suite/issues/36)/[#55](https://github.com/yjh051108/dsh-routing-suite/issues/55)）：引导与用户消息同请求注入，真实链路上可达，且不再产生额外的第二次 API 调用（此前每轮多 1 次调用 = 费用 2×）
+- **缺导入修复**（[#11](https://github.com/yjh051108/dsh-routing-suite/issues/11)）、preset.yml YAML 引号（[#53](https://github.com/yjh051108/dsh-routing-suite/issues/53)）、promoted 后完整回归（[#44](https://github.com/yjh051108/dsh-routing-suite/issues/44)）、安装脚本与文档修正（[#35](https://github.com/yjh051108/dsh-routing-suite/issues/35)/[#42](https://github.com/yjh051108/dsh-routing-suite/issues/42)/[#41](https://github.com/yjh051108/dsh-routing-suite/issues/41)）、injector git 装配自动构建（[#40](https://github.com/yjh051108/dsh-routing-suite/issues/40)）
+
 ## 文档
 
 - 注入器引导（规范铁律 10 条）：`injector/README.md`
@@ -57,4 +69,3 @@ Copy-Item -Recurse .\preset\preset $target
 ## 许可证
 
 MIT。致谢：xiaobright/modeltest（V4.1b 评测）、xiaobright/dsh-anchored-standard（锚定机制）。
-
