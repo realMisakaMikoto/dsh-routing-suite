@@ -65,6 +65,7 @@ Copy-Item -Recurse .\preset\router-spec $target
 
 - 注入器引导（规范铁律 10 条）：`injector/README.md`
 - 路由预设论文与实验：`preset/docs/paper.md` + `preset/docs/experiments.md`（P1-P23）
+- 仓库结构迁移（submodule → 直接文件）：[docs/FLATTEN-MIGRATION.md](docs/FLATTEN-MIGRATION.md)
 
 ## 许可证
 
