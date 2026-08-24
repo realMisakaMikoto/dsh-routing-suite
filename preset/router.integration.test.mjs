@@ -21,9 +21,9 @@ import test from 'node:test'
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { apply as applyStandard } from './preset/router-standard/router-bootstrap-v34.mjs' // v1.18.3：测试面=运行面（agent.cordis.yml 挂载 -v34）
-import { apply as applySpec } from './preset/router-spec/router-bootstrap-v10.mjs' // v1.18.3: 测试面=运行面（agent.cordis.yml 挂载 -v10）
-import { classifyTask, sessionMode } from './preset/router-standard/router-core.mjs'
+import { apply as applyStandard } from './router-standard/router-bootstrap-v34.mjs' // v1.18.3：测试面=运行面（agent.cordis.yml 挂载 -v34）
+import { apply as applySpec } from './router-spec/router-bootstrap-v10.mjs' // v1.18.3: 测试面=运行面（agent.cordis.yml 挂载 -v10）
+import { classifyTask, sessionMode } from './router-standard/router-core.mjs'
 
 // ── minimal Cordis-shaped context ──────────────────────────────────────────
 

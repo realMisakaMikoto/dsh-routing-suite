@@ -20,7 +20,7 @@
  *
  * ── v0.3.0: real-assembly-chain fixes ─────────────────────────────────────
  *
- * See the identical notes in `preset/router-standard/router-bootstrap.mjs`:
+ * See the identical notes in `router-standard/router-bootstrap.mjs`:
  * first-turn classification now runs off `agent/inbox/claimed` (#13), and
  * near-field guidance is injected at `agent/pre-step` into the SAME request
  * as the user message (#34/#36/#55). The promoted branch restores the full

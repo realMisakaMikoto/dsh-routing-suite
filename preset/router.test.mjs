@@ -7,8 +7,8 @@ import { writeFileSync, rmSync } from 'node:fs'
 import {
   classifyTask, personaFor, coreFor, bandFor, testinessFor, parseMode, applyPersona,
   isFlashModel, extractText, sessionMode,
-} from './preset/router-standard/router-core.mjs'
-import { autoAdvance, filterToolGuidance, markerFor, runtimeMark, runtimeCallable, deliveryCheck, paramHint, isMemoryTool, muteAwareList, firstUserTask } from './preset/router-standard/router-bootstrap-v34.mjs' // v1.18.3：测试面=运行面（agent.cordis.yml 挂载 -v34）
+} from './router-standard/router-core.mjs'
+import { autoAdvance, filterToolGuidance, markerFor, runtimeMark, runtimeCallable, deliveryCheck, paramHint, isMemoryTool, muteAwareList, firstUserTask } from './router-standard/router-bootstrap-v34.mjs' // v1.18.3：测试面=运行面（agent.cordis.yml 挂载 -v34）
 
 test('react: greenfield/build tasks map to react band', () => {
   assert.equal(bandFor(classifyTask('需要本地开发一个马里奥网页小游戏，参考经典原版')), 'react')
